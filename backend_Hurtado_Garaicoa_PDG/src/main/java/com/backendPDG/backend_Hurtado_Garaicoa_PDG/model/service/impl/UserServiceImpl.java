@@ -11,6 +11,8 @@ import com.backendPDG.backend_Hurtado_Garaicoa_PDG.security.response.AuthRespons
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -55,5 +57,14 @@ public class UserServiceImpl implements UserService {
         return AuthResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            User user = (User) authentication.getPrincipal();
+            user.setPassword(null);
+            return user;
+        }
+        return null;
     }
 }

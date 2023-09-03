@@ -1,5 +1,6 @@
 package com.backendPDG.backend_Hurtado_Garaicoa_PDG.controller;
 
+import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.entity.User;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.UserService;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.security.request.AuthRequest;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.security.request.RegisterRequest;
@@ -7,10 +8,7 @@ import com.backendPDG.backend_Hurtado_Garaicoa_PDG.security.response.AuthRespons
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,5 +27,15 @@ public class AuthController {
             @RequestBody AuthRequest authenticationRequest){
         return new ResponseEntity<>(userService.authenticate(authenticationRequest), HttpStatus.OK);
 
+    }
+    @GetMapping("/current-user")
+    public ResponseEntity<User> getCurrentUser() {
+        User user = userService.getCurrentUser();
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }
