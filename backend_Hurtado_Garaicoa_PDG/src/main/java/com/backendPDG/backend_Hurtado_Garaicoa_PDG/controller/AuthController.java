@@ -31,11 +31,9 @@ public class AuthController {
     @GetMapping("/current-user")
     public ResponseEntity<User> getCurrentUser() {
         User user = userService.getCurrentUser();
-
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }
