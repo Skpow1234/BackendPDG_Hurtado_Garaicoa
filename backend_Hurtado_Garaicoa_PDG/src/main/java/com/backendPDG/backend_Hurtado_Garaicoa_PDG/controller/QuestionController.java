@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/v1/questions")
 @RequiredArgsConstructor
 public class QuestionController {

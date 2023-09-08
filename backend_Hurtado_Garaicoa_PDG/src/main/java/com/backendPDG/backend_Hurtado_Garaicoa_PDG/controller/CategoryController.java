@@ -2,7 +2,6 @@ package com.backendPDG.backend_Hurtado_Garaicoa_PDG.controller;
 
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.CategoryDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.CategoryService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,9 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @RestController
+@CrossOrigin
 @RequestMapping("/api/v1/categories")
-@RequiredArgsConstructor
 public class CategoryController {
 
     @Autowired

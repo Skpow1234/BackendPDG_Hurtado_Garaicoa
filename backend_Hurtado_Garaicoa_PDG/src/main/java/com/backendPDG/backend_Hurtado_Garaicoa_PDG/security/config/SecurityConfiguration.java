@@ -20,11 +20,14 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+
                 .csrf()
+                .disable()
+                .cors()
                 .disable()
                 .authorizeHttpRequests()
                 .requestMatchers(
-                        "/api/v1/auth/**",
+                        "/api/v1/**",
                         "/swagger-ui/**",
                         "/v3/api-docs/**"
                 )
@@ -40,4 +43,5 @@ public class SecurityConfiguration {
 
         return http.build();
     }
+
 }
