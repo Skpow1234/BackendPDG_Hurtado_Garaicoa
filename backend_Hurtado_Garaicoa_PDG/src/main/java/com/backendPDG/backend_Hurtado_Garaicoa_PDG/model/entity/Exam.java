@@ -36,6 +36,12 @@ public class Exam {
     @Column(name = "state")
     private boolean active = false;
 
+    @Column(name = "first_video")
+    private String firstVideo;
+
+    @Column(name = "second_video")
+    private String secondVideo;
+
     @OneToMany(mappedBy = "exams",cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Question> questions = new HashSet<>();
 

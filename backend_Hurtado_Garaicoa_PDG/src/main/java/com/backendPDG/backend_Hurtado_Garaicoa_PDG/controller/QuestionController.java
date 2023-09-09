@@ -1,5 +1,6 @@
 package com.backendPDG.backend_Hurtado_Garaicoa_PDG.controller;
 
+import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.ExamResultDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.QuestionDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.entity.Exam;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.QuestionService;
@@ -43,9 +44,8 @@ public class QuestionController {
 
     @GetMapping("/getQuestionsFromExam/{examId}")
     public ResponseEntity<Set<QuestionDTO>> getQuestionsFromExam(
-            @PathVariable(name = "examId") Long examId) {
-        Exam exam = new Exam(); // Debes obtener el examen correspondiente a examId de alguna manera (puede ser a través del ExamService)
-        Set<QuestionDTO> questions = questionService.getQuestionsFromExam(exam);
+            @PathVariable(name = "examId") Exam examId) {
+        Set<QuestionDTO> questions = questionService.getQuestionsFromExam(examId);
         return new ResponseEntity<>(questions, HttpStatus.OK);
     }
 
@@ -60,6 +60,15 @@ public class QuestionController {
     public ResponseEntity<String> deleteQuestion(
             @PathVariable(name = "id") Long questionId) {
         return new ResponseEntity<>(questionService.deleteQuestion(questionId), HttpStatus.OK);
+    }
+
+    @PostMapping("/{examId}/evaluate")
+    public ResponseEntity<ExamResultDTO> evaluateExam(
+            @PathVariable(name = "examId") Long examId,
+            @Valid @RequestBody List<QuestionDTO> userAnswers) {
+        long startTimeMillis = System.currentTimeMillis(); // Registro del tiempo de inicio
+        ExamResultDTO examResult = questionService.evaluateExam(examId, userAnswers, startTimeMillis);
+        return new ResponseEntity<>(examResult, HttpStatus.OK);
     }
 }
 

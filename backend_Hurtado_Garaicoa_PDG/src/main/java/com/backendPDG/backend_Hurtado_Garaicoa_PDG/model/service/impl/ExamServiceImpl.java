@@ -105,6 +105,8 @@ public class ExamServiceImpl implements ExamService {
         examDTO.setDescription(exam.getDescription());
         examDTO.setMaxScore(exam.getMaxScore());
         examDTO.setNumberQuestions(exam.getNumberQuestions());
+        examDTO.setFirstVideo(exam.getFirstVideo());
+        examDTO.setSecondVideo(exam.getSecondVideo());
         examDTO.setCategoryId(exam.getCategory().getId());
         return examDTO;
     }

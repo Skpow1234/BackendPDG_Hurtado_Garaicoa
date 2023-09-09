@@ -1,5 +1,6 @@
 package com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.impl;
 
+import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.ExamResultDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.QuestionDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.exception.ResourceNotFoundException;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.entity.Exam;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -78,8 +80,67 @@ public class QuestionServiceImpl implements QuestionService {
     }
     @Override
     public Set<QuestionDTO> getQuestionsFromExam(Exam exam) {
-        return questionRepository.findByExams(exam);
+        Set<Question> examQuestions = exam.getQuestions();
+
+        if (examQuestions.isEmpty()) {
+            // Si el examen no tiene preguntas, puedes devolver un conjunto vacío o manejar la lógica según tus necesidades.
+            return Collections.emptySet();
+        } else {
+            // Asegúrate de que cada pregunta esté asociada al examen actual.
+            // Esto puede ser útil si quieres garantizar la coherencia de los datos en tu base de datos.
+            for (Question question : examQuestions) {
+                if (!exam.equals(question.getExams())) {
+                    // Asigna el examen al que pertenece la pregunta.
+                    question.setExams(exam);
+                    questionRepository.save(question);
+                }
+            }
+
+            // Utiliza streams para convertir las preguntas a QuestionDTO y recopilarlas en un conjunto
+            Set<QuestionDTO> questionDTOs = examQuestions.stream()
+                    .map(this::mapToDto)
+                    .collect(Collectors.toSet());
+
+            return questionDTOs;
+        }
     }
+
+
+
+    public ExamResultDTO evaluateExam(Long examId, List<QuestionDTO> userAnswers, long startTimeMillis) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Exam", "Id", examId));
+
+        List<Question> examQuestions = (List<Question>) exam.getQuestions();
+        int totalQuestions = examQuestions.size();
+        int correctAnswers = 0;
+
+        for (int i = 0; i < totalQuestions; i++) {
+            Question question = examQuestions.get(i);
+            QuestionDTO userAnswer = userAnswers.get(i);
+
+            if (question.getAnswer().equals(userAnswer.getAnswer())) {
+                correctAnswers++;
+            }
+        }
+
+        double score = ((double) correctAnswers / totalQuestions) * 100;
+
+        long endTimeMillis = System.currentTimeMillis();
+        long timeElapsedMillis = endTimeMillis - startTimeMillis;
+
+        ExamResultDTO examResultDTO = new ExamResultDTO();
+        examResultDTO.setExamId(exam.getExamId());
+        examResultDTO.setTitle(exam.getTitle());
+        examResultDTO.setTotalQuestions(totalQuestions);
+        examResultDTO.setCorrectAnswers(correctAnswers);
+        examResultDTO.setScore(score);
+        examResultDTO.setTimeElapsedMillis(timeElapsedMillis);
+
+        return examResultDTO;
+    }
+
 
     private QuestionDTO mapToDto(Question question) {
         QuestionDTO questionDTO = new QuestionDTO();
@@ -97,8 +158,6 @@ public class QuestionServiceImpl implements QuestionService {
 
         return questionDTO;
     }
-
-
 
     private Question mapToEntity(QuestionDTO questionDTO){
         Question question = modelMapper.map(questionDTO, Question.class);

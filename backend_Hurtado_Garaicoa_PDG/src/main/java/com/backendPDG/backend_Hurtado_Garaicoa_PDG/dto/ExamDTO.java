@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,5 +18,8 @@ public class ExamDTO {
     private String maxScore;
     private String numberQuestions;
     private boolean active = false;
+    private String firstVideo;
+    private String secondVideo;
     private Long categoryId;
+    private List<QuestionDTO> questions;
 }
