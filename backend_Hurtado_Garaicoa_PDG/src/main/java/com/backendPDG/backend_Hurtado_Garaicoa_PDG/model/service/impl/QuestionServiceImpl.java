@@ -2,6 +2,7 @@ package com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.impl;
 
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.ExamResultDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.QuestionDTO;
+import com.backendPDG.backend_Hurtado_Garaicoa_PDG.exception.ExamNotFoundException;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.exception.ResourceNotFoundException;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.entity.Exam;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.entity.Question;
@@ -12,8 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,15 +81,14 @@ public class QuestionServiceImpl implements QuestionService {
         return "Question successfully deleted.";
     }
     @Override
-    public Set<QuestionDTO> getQuestionsFromExam(Exam exam) {
-        Set<Question> examQuestions = exam.getQuestions();
+    public Set<QuestionDTO> getQuestionsFromExam(Long examId) {
+        Optional<Exam> optionalExam = examRepository.findById(examId);
 
-        if (examQuestions.isEmpty()) {
-            // Si el examen no tiene preguntas, puedes devolver un conjunto vacío o manejar la lógica según tus necesidades.
-            return Collections.emptySet();
-        } else {
+        if (optionalExam.isPresent()) {
+            Exam exam = optionalExam.get();
+            Set<Question> examQuestions = exam.getQuestions();
+
             // Asegúrate de que cada pregunta esté asociada al examen actual.
-            // Esto puede ser útil si quieres garantizar la coherencia de los datos en tu base de datos.
             for (Question question : examQuestions) {
                 if (!exam.equals(question.getExams())) {
                     // Asigna el examen al que pertenece la pregunta.
@@ -102,25 +103,33 @@ public class QuestionServiceImpl implements QuestionService {
                     .collect(Collectors.toSet());
 
             return questionDTOs;
+        } else {
+            // Manejar el caso en que el examen no se encuentre
+            throw new ExamNotFoundException("No se encontró un examen con ID: " + examId);
         }
     }
 
 
 
-    public ExamResultDTO evaluateExam(Long examId, List<QuestionDTO> userAnswers, long startTimeMillis) {
+
+    public ExamResultDTO evaluateExam(Long examId, List<String> userAnswers, long startTimeMillis) {
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Exam", "Id", examId));
 
-        List<Question> examQuestions = (List<Question>) exam.getQuestions();
+        List<Question> examQuestions = new ArrayList<>(exam.getQuestions());
         int totalQuestions = examQuestions.size();
         int correctAnswers = 0;
 
+        if (totalQuestions != userAnswers.size()) {
+            throw new IllegalArgumentException("El número de respuestas proporcionadas no coincide con el número de preguntas en el examen.");
+        }
+
         for (int i = 0; i < totalQuestions; i++) {
             Question question = examQuestions.get(i);
-            QuestionDTO userAnswer = userAnswers.get(i);
+            String userAnswer = userAnswers.get(i);
 
-            if (question.getAnswer().equals(userAnswer.getAnswer())) {
+            if (question.getAnswer().equalsIgnoreCase(userAnswer)) {
                 correctAnswers++;
             }
         }
@@ -140,6 +149,7 @@ public class QuestionServiceImpl implements QuestionService {
 
         return examResultDTO;
     }
+
 
 
     private QuestionDTO mapToDto(Question question) {

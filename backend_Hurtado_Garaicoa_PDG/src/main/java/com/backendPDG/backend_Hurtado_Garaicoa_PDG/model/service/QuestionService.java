@@ -2,7 +2,6 @@ package com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service;
 
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.ExamResultDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.QuestionDTO;
-import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.entity.Exam;
 
 import java.util.List;
 import java.util.Set;
@@ -13,6 +12,6 @@ public interface QuestionService {
     QuestionDTO getQuestionById(Long questionId);
     QuestionDTO updateQuestion(Long questionId, QuestionDTO questionDTO);
     String deleteQuestion(Long questionId);
-    Set<QuestionDTO> getQuestionsFromExam(Exam exam);
-    ExamResultDTO evaluateExam(Long examId, List<QuestionDTO> userAnswers, long startTimeMillis);
+    Set<QuestionDTO> getQuestionsFromExam(Long examId);
+    ExamResultDTO evaluateExam(Long examId, List<String> userAnswers, long startTimeMillis);
 }
