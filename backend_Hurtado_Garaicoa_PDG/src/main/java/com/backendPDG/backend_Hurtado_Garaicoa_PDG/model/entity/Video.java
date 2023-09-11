@@ -18,4 +18,6 @@ public class Video {
     private Long id;
     private String title;
     private String description;
+    @Lob
+    private byte[] videoData;
 }

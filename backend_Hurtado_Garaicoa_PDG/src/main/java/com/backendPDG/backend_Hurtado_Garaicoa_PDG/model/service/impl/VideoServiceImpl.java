@@ -3,6 +3,7 @@ package com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.impl;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.entity.Video;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.repository.VideoRepository;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.VideoService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,16 +16,16 @@ public class VideoServiceImpl implements VideoService {
     private VideoRepository videoRepository;
 
     @Override
+    @Transactional
     public void uploadVideo(MultipartFile file, String title, String description) throws IOException {
         Video video = new Video();
         video.setTitle(title);
         video.setDescription(description);
 
-        // Guardar el archivo en el sistema de archivos o almacenarlo en una base de datos BLOB, dependiendo de tus necesidades.
-        // Ejemplo de almacenamiento en el sistema de archivos:
-        // Files.write(Paths.get("directorio_de_almacenamiento", file.getOriginalFilename()), file.getBytes());
+        // Convierte el archivo MultipartFile en bytes y almacénalo en la entidad Video.
+        video.setVideoData(file.getBytes());
 
-        // Guardar los detalles del video en la base de datos
+        // Guarda los detalles del video en la base de datos.
         videoRepository.save(video);
     }
 }
