@@ -1,6 +1,5 @@
 package com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.impl;
 
-import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.ExamResultDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.QuestionDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.exception.ExamNotFoundException;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.exception.ResourceNotFoundException;
@@ -13,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -108,49 +104,6 @@ public class QuestionServiceImpl implements QuestionService {
             throw new ExamNotFoundException("No se encontró un examen con ID: " + examId);
         }
     }
-
-
-
-
-    public ExamResultDTO evaluateExam(Long examId, List<String> userAnswers, long startTimeMillis) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Exam", "Id", examId));
-
-        List<Question> examQuestions = new ArrayList<>(exam.getQuestions());
-        int totalQuestions = examQuestions.size();
-        int correctAnswers = 0;
-
-        if (totalQuestions != userAnswers.size()) {
-            throw new IllegalArgumentException("El número de respuestas proporcionadas no coincide con el número de preguntas en el examen.");
-        }
-
-        for (int i = 0; i < totalQuestions; i++) {
-            Question question = examQuestions.get(i);
-            String userAnswer = userAnswers.get(i);
-
-            if (question.getAnswer().equalsIgnoreCase(userAnswer)) {
-                correctAnswers++;
-            }
-        }
-
-        double score = ((double) correctAnswers / totalQuestions) * 100;
-
-        long endTimeMillis = System.currentTimeMillis();
-        long timeElapsedMillis = endTimeMillis - startTimeMillis;
-
-        ExamResultDTO examResultDTO = new ExamResultDTO();
-        examResultDTO.setExamId(exam.getExamId());
-        examResultDTO.setTitle(exam.getTitle());
-        examResultDTO.setTotalQuestions(totalQuestions);
-        examResultDTO.setCorrectAnswers(correctAnswers);
-        examResultDTO.setScore(score);
-        examResultDTO.setTimeElapsedMillis(timeElapsedMillis);
-
-        return examResultDTO;
-    }
-
-
 
     private QuestionDTO mapToDto(Question question) {
         QuestionDTO questionDTO = new QuestionDTO();

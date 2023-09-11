@@ -1,6 +1,5 @@
 package com.backendPDG.backend_Hurtado_Garaicoa_PDG.controller;
 
-import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.ExamResultDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.QuestionDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.QuestionService;
 import jakarta.validation.Valid;
@@ -59,15 +58,6 @@ public class QuestionController {
     public ResponseEntity<String> deleteQuestion(
             @PathVariable(name = "id") Long questionId) {
         return new ResponseEntity<>(questionService.deleteQuestion(questionId), HttpStatus.OK);
-    }
-
-    @PostMapping("/{examId}/evaluate")
-    public ResponseEntity<ExamResultDTO> evaluateExam(
-            @PathVariable(name = "examId") Long examId,
-            @RequestBody List<String> userAnswers) {
-        long startTimeMillis = System.currentTimeMillis(); // Registro del tiempo de inicio
-        ExamResultDTO examResult = questionService.evaluateExam(examId, userAnswers, startTimeMillis);
-        return new ResponseEntity<>(examResult, HttpStatus.OK);
     }
 }
 

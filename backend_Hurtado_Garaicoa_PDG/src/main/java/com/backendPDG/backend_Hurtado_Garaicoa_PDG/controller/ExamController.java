@@ -1,7 +1,9 @@
 package com.backendPDG.backend_Hurtado_Garaicoa_PDG.controller;
 
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.ExamDTO;
+import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.QuestionDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.ExamService;
+import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -20,6 +23,7 @@ public class ExamController {
 
     @Autowired
     private ExamService examService;
+    private final QuestionService questionService;
 
     @PostMapping(path = "/createExam",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -57,5 +61,9 @@ public class ExamController {
         List<ExamDTO> exams = examService.getActiveExams();
         return new ResponseEntity<>(exams, HttpStatus.OK);
     }
-
+    @PostMapping("/evaluate-exam")
+    public ResponseEntity<?> evaluateExam(@RequestBody List<QuestionDTO> questions) {
+        Map<String, Object> responses = examService.evaluateExam(questions);
+        return ResponseEntity.ok(responses);
+    }
 }

@@ -1,21 +1,25 @@
 package com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.impl;
 
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.ExamDTO;
+import com.backendPDG.backend_Hurtado_Garaicoa_PDG.dto.QuestionDTO;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.exception.ResourceNotFoundException;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.entity.Category;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.entity.Exam;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.repository.CategoryRepository;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.repository.ExamRepository;
-import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.repository.UserRepository;
 import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.ExamService;
+import com.backendPDG.backend_Hurtado_Garaicoa_PDG.model.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +28,8 @@ public class ExamServiceImpl implements ExamService {
     private final ExamRepository examRepository;
     private final ModelMapper modelMapper;
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
+    @Autowired
+    private QuestionService questionService;
 
     public ExamDTO addExam(ExamDTO examDTO) {
         Exam exam = mapToEntity(examDTO);
@@ -96,6 +101,31 @@ public class ExamServiceImpl implements ExamService {
         return exams.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Object> evaluateExam(List<QuestionDTO> questions) {
+        double maximumPoints = 0;
+        Integer correctAnswers = 0;
+        Integer attempts = 0;
+
+        for (QuestionDTO questionDTO : questions) {
+            QuestionDTO question = this.questionService.getQuestionById(questionDTO.getQuestionId());
+            if (question.getAnswer().equals(questionDTO.getAnswer())) {
+                correctAnswers++;
+                double points = Double.parseDouble(questions.get(0).getExamId().toString()) / questions.size();
+                maximumPoints += points;
+            }
+            if (questionDTO.getAnswer() != null) {
+                attempts++;
+            }
+        }
+
+        Map<String, Object> responses = new HashMap<>();
+        responses.put("maximumPoints", maximumPoints);
+        responses.put("correctAnswers", correctAnswers);
+        responses.put("attempts", attempts);
+        return responses;
     }
 
     private ExamDTO mapToDto(Exam exam){
